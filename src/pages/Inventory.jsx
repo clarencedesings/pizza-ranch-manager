@@ -9,18 +9,18 @@ const DEFAULT_ITEMS = [
 export default function Inventory() {
   const [items, setItems] = useState([])
   const [saved, setSaved] = useState(false)
+  const [newItem, setNewItem] = useState('')
 
-  useEffect(() => {
-    async function load() {
-      const { data } = await api.get('/inventory')
-      if (data.length === 0) {
-        setItems(DEFAULT_ITEMS.map(name => ({ name, checked: false, notes: '' })))
-      } else {
-        setItems(data)
-      }
+  const load = async () => {
+    const { data } = await api.get('/inventory')
+    if (data.length === 0) {
+      setItems(DEFAULT_ITEMS.map(name => ({ name, checked: false, notes: '' })))
+    } else {
+      setItems(data)
     }
-    load()
-  }, [])
+  }
+
+  useEffect(() => { load() }, [])
 
   const toggle = (idx) => {
     const next = [...items]
@@ -42,12 +42,36 @@ export default function Inventory() {
     setTimeout(() => setSaved(false), 2000)
   }
 
+  const handleAdd = async (e) => {
+    e.preventDefault()
+    if (!newItem.trim()) return
+    await api.post('/inventory/add', { name: newItem.trim() })
+    setNewItem('')
+    load()
+  }
+
+  const handleDelete = async (name) => {
+    if (!window.confirm(`Remove "${name}" from inventory?`)) return
+    await api.delete(`/inventory/${encodeURIComponent(name)}`)
+    load()
+  }
+
   const checkedCount = items.filter(i => i.checked).length
 
   return (
     <>
       <div className="form-card">
         <h2>Inventory Status: {checkedCount}/{items.length} items stocked</h2>
+        <form onSubmit={handleAdd} style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+          <input
+            type="text"
+            value={newItem}
+            onChange={e => setNewItem(e.target.value)}
+            placeholder="New item name..."
+            style={{ flex: 1 }}
+          />
+          <button className="btn btn-gold" type="submit">Add Item</button>
+        </form>
         <div className="inventory-list">
           {items.map((item, idx) => (
             <div key={idx} className="inventory-item">
@@ -65,6 +89,12 @@ export default function Inventory() {
                 value={item.notes}
                 onChange={e => updateNotes(idx, e.target.value)}
               />
+              <button
+                className="btn btn-sm btn-danger"
+                onClick={() => handleDelete(item.name)}
+                title="Remove item"
+                style={{ flexShrink: 0, padding: '6px 10px' }}
+              >✕</button>
             </div>
           ))}
         </div>

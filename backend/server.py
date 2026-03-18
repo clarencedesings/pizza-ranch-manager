@@ -87,6 +87,23 @@ async def save_inventory(req: InventoryRequest):
     return {"status": "ok"}
 
 
+class InventoryAddRequest(BaseModel):
+    name: str
+
+@app.post("/inventory/add")
+async def add_inventory_item(req: InventoryAddRequest):
+    items = load("inventory")
+    items.append({"name": req.name, "checked": False, "notes": ""})
+    save("inventory", items)
+    return {"status": "ok"}
+
+@app.delete("/inventory/{item_name}")
+async def delete_inventory_item(item_name: str):
+    items = [i for i in load("inventory") if i.get("name") != item_name]
+    save("inventory", items)
+    return {"status": "ok"}
+
+
 # --- Complaints ---
 
 class ComplaintRequest(BaseModel):
