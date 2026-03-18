@@ -2,12 +2,12 @@ import { useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 
 const NAV = [
-  { to: '/', icon: '📊', label: 'Dashboard' },
-  { to: '/specials', icon: '🍕', label: 'Daily Specials' },
+  { to: '/', icon: '📊', label: 'Dashboard', manager: true },
+  { to: '/specials', icon: '🍕', label: 'Daily Specials', manager: true },
   { to: '/inventory', icon: '📦', label: 'Inventory' },
-  { to: '/complaints', icon: '📋', label: 'Complaints' },
-  { to: '/parties', icon: '🎉', label: 'Party Bookings' },
-  { to: '/sales', icon: '💰', label: 'Daily Sales' },
+  { to: '/complaints', icon: '📋', label: 'Complaints', manager: true },
+  { to: '/parties', icon: '🎉', label: 'Party Bookings', manager: true },
+  { to: '/sales', icon: '💰', label: 'Daily Sales', manager: true },
   { to: '/announcements', icon: '📢', label: 'Announcements' },
   { to: '/shifts', icon: '🕐', label: 'Shift Coverage' },
 ]
@@ -23,10 +23,13 @@ const TITLES = {
   '/shifts': 'Shift Coverage',
 }
 
-export default function Layout({ children, onLogout }) {
+export default function Layout({ children, role, onLogout }) {
   const [open, setOpen] = useState(false)
   const location = useLocation()
   const title = TITLES[location.pathname] || 'Dashboard'
+  const visibleNav = NAV.filter(n => !n.manager || role === 'manager')
+  const roleLabel = role === 'manager' ? 'Manager' : 'Staff'
+  console.log('[Layout] role:', role, 'visibleNav:', visibleNav.map(n => n.label))
 
   return (
     <div className="app-layout">
@@ -34,10 +37,10 @@ export default function Layout({ children, onLogout }) {
       <nav className={`sidebar ${open ? 'open' : ''}`}>
         <div className="sidebar-logo">
           <h2>🍕 Pizza Ranch</h2>
-          <span>FunZone Manager</span>
+          <span>FunZone {roleLabel}</span>
         </div>
         <div className="sidebar-nav">
-          {NAV.map(n => (
+          {visibleNav.map(n => (
             <NavLink
               key={n.to}
               to={n.to}
@@ -59,7 +62,7 @@ export default function Layout({ children, onLogout }) {
             <h1>{title}</h1>
           </div>
           <div className="status">
-            Manager logged in &nbsp;
+            {roleLabel} logged in &nbsp;
             <button className="btn btn-sm btn-red" onClick={onLogout}>Logout</button>
           </div>
         </div>

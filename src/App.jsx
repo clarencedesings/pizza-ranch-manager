@@ -12,24 +12,40 @@ import Announcements from './pages/Announcements'
 import Shifts from './pages/Shifts'
 
 function App() {
-  const [authed, setAuthed] = useState(false)
+  const [auth, setAuth] = useState({ loggedIn: false, role: null })
 
-  if (!authed) {
-    return <Login onLogin={() => setAuthed(true)} />
+  const handleLogin = (r) => {
+    console.log('[App] Login with role:', r)
+    setAuth({ loggedIn: true, role: r })
   }
 
+  const handleLogout = () => {
+    setAuth({ loggedIn: false, role: null })
+  }
+
+  if (!auth.loggedIn) {
+    return <Login onLogin={handleLogin} />
+  }
+
+  const { role } = auth
+  console.log('[App] Rendering with role:', role)
+
+  const staffDefault = '/inventory'
+  const managerOnly = (element) =>
+    role === 'manager' ? element : <Navigate to={staffDefault} />
+
   return (
-    <Layout onLogout={() => setAuthed(false)}>
+    <Layout role={auth.role} onLogout={handleLogout}>
       <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/specials" element={<Specials />} />
+        <Route path="/" element={managerOnly(<Dashboard />)} />
+        <Route path="/specials" element={managerOnly(<Specials />)} />
         <Route path="/inventory" element={<Inventory />} />
-        <Route path="/complaints" element={<Complaints />} />
-        <Route path="/parties" element={<Parties />} />
-        <Route path="/sales" element={<Sales />} />
+        <Route path="/complaints" element={managerOnly(<Complaints />)} />
+        <Route path="/parties" element={managerOnly(<Parties />)} />
+        <Route path="/sales" element={managerOnly(<Sales />)} />
         <Route path="/announcements" element={<Announcements />} />
         <Route path="/shifts" element={<Shifts />} />
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="*" element={<Navigate to={role === 'manager' ? '/' : staffDefault} />} />
       </Routes>
     </Layout>
   )

@@ -43,7 +43,9 @@ class LoginRequest(BaseModel):
 @app.post("/login")
 async def login(req: LoginRequest):
     if req.password == "ranch2026":
-        return {"success": True}
+        return {"success": True, "role": "manager"}
+    if req.password == "staff2026":
+        return {"success": True, "role": "staff"}
     return {"success": False, "error": "Invalid password"}
 
 
