@@ -1,0 +1,14 @@
+[Unit]
+Description=Pizza Ranch Manager Frontend
+After=network.target
+
+[Service]
+Type=simple
+User=clarence
+WorkingDirectory=/home/clarence/pizza-ranch-manager
+ExecStart=/usr/bin/env serve -s dist -l 8083
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
