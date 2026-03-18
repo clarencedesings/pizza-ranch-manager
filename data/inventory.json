@@ -1,1 +1,52 @@
-[]
+[
+  {
+    "name": "Dough",
+    "checked": true,
+    "notes": "running low"
+  },
+  {
+    "name": "Mozzarella",
+    "checked": true,
+    "notes": "reorder"
+  },
+  {
+    "name": "Sauce",
+    "checked": true,
+    "notes": "low"
+  },
+  {
+    "name": "Pepperoni",
+    "checked": true,
+    "notes": "out of stock"
+  },
+  {
+    "name": "Chicken",
+    "checked": true,
+    "notes": "reorder"
+  },
+  {
+    "name": "Tokens",
+    "checked": true,
+    "notes": "running low"
+  },
+  {
+    "name": "Prize Inventory",
+    "checked": true,
+    "notes": "3d printed items out of stock"
+  },
+  {
+    "name": "Napkins",
+    "checked": true,
+    "notes": "reorder"
+  },
+  {
+    "name": "Cups",
+    "checked": false,
+    "notes": ""
+  },
+  {
+    "name": "Plates",
+    "checked": false,
+    "notes": ""
+  }
+]

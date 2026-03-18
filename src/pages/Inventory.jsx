@@ -56,8 +56,8 @@ export default function Inventory() {
                 checked={item.checked}
                 onChange={() => toggle(idx)}
               />
-              <span className="item-name" style={{ color: item.checked ? '#28a745' : '#C8102E' }}>
-                {item.name}
+              <span className="item-name" style={{ color: /low|reorder|out of stock|empty/i.test(item.notes) ? '#e67e00' : item.checked ? '#28a745' : '#C8102E' }}>
+                {/low|reorder|out of stock|empty/i.test(item.notes) && '\u26A0\uFE0F '}{item.name}
               </span>
               <input
                 type="text"

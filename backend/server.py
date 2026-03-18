@@ -244,8 +244,10 @@ async def get_sales():
 @app.post("/sales")
 async def add_sales(req: SalesRequest):
     items = load("sales")
+    new_id = str(uuid.uuid4())
+    print(f"[Sales POST] Creating entry with id={new_id}")
     items.append({
-        "id": str(uuid.uuid4())[:8],
+        "id": new_id,
         "date": datetime.now().strftime("%Y-%m-%d"),
         "covers_served": req.covers_served,
         "buffet_revenue": req.buffet_revenue,
@@ -255,3 +257,30 @@ async def add_sales(req: SalesRequest):
     })
     save("sales", items)
     return {"status": "ok"}
+
+@app.delete("/sales/{item_id}")
+async def delete_sales(item_id: str):
+    print(f"[Sales DELETE] Deleting id={item_id}")
+    items = [i for i in load("sales") if i.get("id") != item_id]
+    save("sales", items)
+    return {"status": "ok"}
+
+@app.put("/sales/{item_id}")
+async def update_sales(item_id: str, req: SalesRequest):
+    items = load("sales")
+    existing_ids = [i.get("id") for i in items]
+    print(f"[Sales PUT] Looking for id={item_id} in {existing_ids}")
+    found = False
+    for item in items:
+        if item.get("id") == item_id:
+            item["covers_served"] = req.covers_served
+            item["buffet_revenue"] = req.buffet_revenue
+            item["arcade_revenue"] = req.arcade_revenue
+            item["notes"] = req.notes
+            found = True
+            print(f"[Sales PUT] Updated entry id={item_id}")
+            break
+    if not found:
+        print(f"[Sales PUT] WARNING: id={item_id} not found!")
+    save("sales", items)
+    return {"status": "ok", "found": found}

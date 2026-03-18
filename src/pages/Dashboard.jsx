@@ -23,7 +23,8 @@ export default function Dashboard() {
       ])
       const today = new Date().toISOString().slice(0, 10)
       const todaySpecial = sp.data.filter(s => s.date === today).pop()
-      const unchecked = inv.data.filter(i => !i.checked).length
+      const lowKeywords = /low|reorder|out of stock|empty/i
+      const unchecked = inv.data.filter(i => i.notes && lowKeywords.test(i.notes)).length
       const openShifts = sh.data.filter(s => !s.claimed_by).length
       const urgent = an.data.filter(a => a.priority === 'urgent').slice(-3)
       setData({
