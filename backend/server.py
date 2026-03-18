@@ -39,14 +39,85 @@ def save(name: str, data: list):
 
 class LoginRequest(BaseModel):
     password: str
+    username: str = ""
 
 @app.post("/login")
 async def login(req: LoginRequest):
+    print(f"[Login] Incoming request — username: '{req.username}', password: '{req.password}'")
     if req.password == "ranch2026":
-        return {"success": True, "role": "manager"}
+        print("[Login] Matched hardcoded manager password")
+        return {"success": True, "role": "manager", "name": "Manager"}
     if req.password == "staff2026":
-        return {"success": True, "role": "staff"}
+        print("[Login] Matched hardcoded staff password")
+        return {"success": True, "role": "staff", "name": "Staff"}
+    # Check individual staff accounts
+    accounts = load("staff_accounts")
+    print(f"[Login] Checking {len(accounts)} staff account(s)")
+    for acct in accounts:
+        match_user = acct.get("username", "").lower() == req.username.lower()
+        match_pass = acct.get("password") == req.password
+        is_active = acct.get("active")
+        matched = match_user and match_pass and is_active
+        print(f"[Login]   account username='{acct.get('username')}' password='{acct.get('password')}' active={is_active} — user_match={match_user} pass_match={match_pass} => {matched}")
+        if matched:
+            print(f"[Login] SUCCESS — matched account: {acct['name']}")
+            return {"success": True, "role": "staff", "name": acct["name"]}
+    print("[Login] FAILED — no match found")
     return {"success": False, "error": "Invalid password"}
+
+
+# --- Staff Accounts ---
+
+class StaffAccountRequest(BaseModel):
+    name: str
+    username: str
+    password: str
+
+class ResetPasswordRequest(BaseModel):
+    new_password: str
+
+@app.get("/staff")
+async def get_staff():
+    accounts = load("staff_accounts")
+    return [
+        {k: v for k, v in acct.items() if k != "password"}
+        for acct in accounts
+    ]
+
+@app.post("/staff")
+async def create_staff(req: StaffAccountRequest):
+    accounts = load("staff_accounts")
+    accounts.append({
+        "id": str(uuid.uuid4()),
+        "name": req.name,
+        "username": req.username,
+        "password": req.password,
+        "role": "staff",
+        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "active": True,
+    })
+    save("staff_accounts", accounts)
+    return {"status": "ok"}
+
+@app.delete("/staff/{item_id}")
+async def deactivate_staff(item_id: str):
+    accounts = load("staff_accounts")
+    for acct in accounts:
+        if acct.get("id") == item_id:
+            acct["active"] = False
+            break
+    save("staff_accounts", accounts)
+    return {"status": "ok"}
+
+@app.put("/staff/{item_id}/reset-password")
+async def reset_staff_password(item_id: str, req: ResetPasswordRequest):
+    accounts = load("staff_accounts")
+    for acct in accounts:
+        if acct.get("id") == item_id:
+            acct["password"] = req.new_password
+            break
+    save("staff_accounts", accounts)
+    return {"status": "ok"}
 
 
 # --- Specials ---

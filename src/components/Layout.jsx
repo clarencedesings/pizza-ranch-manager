@@ -10,6 +10,7 @@ const NAV = [
   { to: '/sales', icon: '💰', label: 'Daily Sales', manager: true },
   { to: '/announcements', icon: '📢', label: 'Announcements' },
   { to: '/shifts', icon: '🕐', label: 'Shift Coverage' },
+  { to: '/staff', icon: '👥', label: 'Staff Accounts', manager: true },
 ]
 
 const TITLES = {
@@ -21,6 +22,7 @@ const TITLES = {
   '/sales': 'Daily Sales Summary',
   '/announcements': 'Staff Announcements',
   '/shifts': 'Shift Coverage',
+  '/staff': 'Staff Accounts',
 }
 
 export default function Layout({ children, role, onLogout }) {

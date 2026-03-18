@@ -10,6 +10,7 @@ import Parties from './pages/Parties'
 import Sales from './pages/Sales'
 import Announcements from './pages/Announcements'
 import Shifts from './pages/Shifts'
+import Staff from './pages/Staff'
 
 function App() {
   const [auth, setAuth] = useState({ loggedIn: false, role: null })
@@ -45,6 +46,7 @@ function App() {
         <Route path="/sales" element={managerOnly(<Sales />)} />
         <Route path="/announcements" element={<Announcements />} />
         <Route path="/shifts" element={<Shifts />} />
+        <Route path="/staff" element={managerOnly(<Staff />)} />
         <Route path="*" element={<Navigate to={role === 'manager' ? '/' : staffDefault} />} />
       </Routes>
     </Layout>
