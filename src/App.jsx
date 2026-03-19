@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Layout from './components/Layout'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
@@ -11,23 +11,9 @@ import Sales from './pages/Sales'
 import Announcements from './pages/Announcements'
 import Shifts from './pages/Shifts'
 import Staff from './pages/Staff'
+import ShiftsPublic from './pages/ShiftsPublic'
 
-function App() {
-  const [auth, setAuth] = useState({ loggedIn: false, role: null })
-
-  const handleLogin = (r) => {
-    console.log('[App] Login with role:', r)
-    setAuth({ loggedIn: true, role: r })
-  }
-
-  const handleLogout = () => {
-    setAuth({ loggedIn: false, role: null })
-  }
-
-  if (!auth.loggedIn) {
-    return <Login onLogin={handleLogin} />
-  }
-
+function AuthedApp({ auth, onLogout }) {
   const { role } = auth
   console.log('[App] Rendering with role:', role)
 
@@ -36,7 +22,7 @@ function App() {
     role === 'manager' ? element : <Navigate to={staffDefault} />
 
   return (
-    <Layout role={auth.role} onLogout={handleLogout}>
+    <Layout role={role} onLogout={onLogout}>
       <Routes>
         <Route path="/" element={managerOnly(<Dashboard />)} />
         <Route path="/specials" element={managerOnly(<Specials />)} />
@@ -51,6 +37,31 @@ function App() {
       </Routes>
     </Layout>
   )
+}
+
+function App() {
+  const [auth, setAuth] = useState({ loggedIn: false, role: null })
+  const location = useLocation()
+
+  const handleLogin = (r) => {
+    console.log('[App] Login with role:', r)
+    setAuth({ loggedIn: true, role: r })
+  }
+
+  const handleLogout = () => {
+    setAuth({ loggedIn: false, role: null })
+  }
+
+  // Public route — no auth required
+  if (location.pathname === '/shifts-public') {
+    return <ShiftsPublic />
+  }
+
+  if (!auth.loggedIn) {
+    return <Login onLogin={handleLogin} />
+  }
+
+  return <AuthedApp auth={auth} onLogout={handleLogout} />
 }
 
 export default App
